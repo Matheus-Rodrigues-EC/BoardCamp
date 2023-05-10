@@ -29,7 +29,7 @@ export async function postCustomer(req, res){
     const {name, phone, cpf, birthday} = req.body;
     // Faz a busca para verificar se existe algum usuário com esse mesmo cpf
     try{
-        const customer = await db.query("SELECT cpf FROM customers WHERE cpf = $1", [cpf]);
+        const customer = await db.query('SELECT cpf FROM customers WHERE cpf = $1', [cpf]);
         if(customer.rows.length >=1) return res.sendStatus(409);
     }catch(error){
         return res.status(500).send(error);
@@ -44,5 +44,5 @@ export async function postCustomer(req, res){
 }
 
 export async function putCustomer(req, res){
-    
+
 }
