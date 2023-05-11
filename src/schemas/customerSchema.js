@@ -14,4 +14,16 @@ export const customerSchema = Joi.object({
                 .required(),
 
         Birthday: Joi.date()
+});
+
+export const putCustomerSchema = Joi.object({
+        Name: Joi.string()
+                .required(),
+
+        Phone: Joi.string()
+                .alphanum()
+                .min(10)
+                .max(11),
+
+        Birthday: Joi.date()
 })
