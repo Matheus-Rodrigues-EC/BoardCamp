@@ -17,7 +17,7 @@ export function validatePutCustomer(req, res, next){
 
     if(putCustomerSchema.validate({Name: name, Phone: phone, Birthday: birthday}).error !== undefined){
         
-        return res.status(400).send(putCustomerSchema.validate({Name: name, Phone: phone, Birthday: birthday}).error);
+        return res.status(400).send(putCustomerSchema.validate({Name: name, Phone: phone, Birthday: birthday}).error.message);
         
     }else{
         next();
