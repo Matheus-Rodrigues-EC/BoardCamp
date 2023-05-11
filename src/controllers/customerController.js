@@ -48,10 +48,13 @@ export async function putCustomer(req, res){
     const {name, phone, cpf, birthday} = req.body;
     try{
         if(cpf){
-            const customer = await db.query('SELECT * FROM customers WHERE id = $1', [id]);
-            console.log(customer.rows[0])
-            console.log(id)
-            if((customer.rows[0].id !== id) && (customer.rows[0].cpf === cpf)) return res.sendStatus(409);
+            const customerId = await db.query('SELECT * FROM customers WHERE id = $1', [id]);
+            const customerCpf = await db.query('SELECT * FROM customers WHERE cpf = $1', [cpf]);
+            if((customerCpf.rowCount > 0)) {
+                if((customerId.rows[0].id !== customerCpf.rows[0].id)){
+                    return res.sendStatus(409);
+                }
+            }
         }
     }catch(error){
         return res.status(500).send(error);
