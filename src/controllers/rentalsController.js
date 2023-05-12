@@ -49,19 +49,22 @@ export async function addRental(req, res){
         const remainingGames = await db.query(`SELECT games.*, rentals."gameId", rentals."returnDate"
         FROM games, rentals 
         WHERE games.id = $1 AND rentals."gameId" = $1 AND rentals."returnDate" ISNULL`, [gameId]);
-        if(remainingGames.rowCount >= remainingGames.rows[0].stockTotal){
-            return res.sendStatus(400);
-            // console.log(remainingGames.rows[0].stockTotal);
+        console.log("Rows: " + remainingGames.rowCount);
+        console.log("Stock: " + remainingGames.rows[0]);
+        if(remainingGames.rowCount > 0){
+            if(remainingGames.rowCount >= remainingGames.rows[0].stockTotal){
+                return res.sendStatus(400);
+            }
         }
     }catch(error){
-        return res.status(500).send(error);
+        return res.status(500).send("Ocorreu um erro ao tentar cadastrar um novo aluguél.");
     }
 
     try{
         await db.query(`INSERT INTO rentals 
         ("customerId", "gameId", "rentDate", "daysRented", "returnDate", "originalPrice", "delayFee")
         VALUES ($1, $2, now(), $3, null, $4, null)`, [customerId, gameId, daysRented, (price.rows[0].pricePerDay * daysRented) ]);
-        return res.sendStatus(200);
+        return res.sendStatus(201);
     }catch(error){
         return res.status(500).send("Ocorreu um erro ao tentar adicionar um aluguel.");
     }
