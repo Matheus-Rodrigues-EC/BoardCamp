@@ -49,8 +49,8 @@ export async function addRental(req, res){
         const remainingGames = await db.query(`SELECT games.*, rentals."gameId", rentals."returnDate"
         FROM games, rentals 
         WHERE games.id = $1 AND rentals."gameId" = $1 AND rentals."returnDate" ISNULL`, [gameId]);
-        console.log("Rows: " + remainingGames.rowCount);
-        console.log("Stock: " + remainingGames.rows[0]);
+        // console.log("Rows: " + remainingGames.rowCount);
+        // console.log("Stock: " + remainingGames.rows[0]);
         if(remainingGames.rowCount > 0){
             if(remainingGames.rowCount >= remainingGames.rows[0].stockTotal){
                 return res.sendStatus(400);
