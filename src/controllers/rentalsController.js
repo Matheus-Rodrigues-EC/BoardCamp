@@ -208,6 +208,64 @@ export async function getRentals(req, res) {
         } catch (error) {
             return res.status(500).send(error);
         }
+    }else if(startDate && status === 'open'){
+        try {
+            const rentals = await db.query(`SELECT rentals.*, customers.id as "customerId", customers.name as "customerName", 
+            games.id as "gameId", games.name as "gameName" FROM rentals
+            JOIN customers ON rentals."customerId" = customers.id
+            JOIN games ON rentals."gameId" = games.id
+			WHERE rentals."rentDate" >= $1 AND rentals."returnDate" ISNULL;`, [startDate]);
+
+            const rentalList = rentals.rows.map((rental) => {
+                const customer = { id: rental.customerId, name: rental.customerName };
+                const game = { id: rental.gameId, name: rental.gameName };
+
+                return ({
+                    id: rental.id,
+                    customerId: rental.customerId,
+                    gameId: rental.gameId,
+                    rentDate: rental.rentDate,
+                    daysRented: rental.daysRented,
+                    returnDate: rental.returnDate,
+                    originalPrice: rental.originalPrice,
+                    delayFee: rental.delayFee,
+                    customer,
+                    game
+                })
+            })
+            return res.status(200).send(rentalList);
+        } catch (error) {
+            return res.status(500).send(error);
+        }
+    }else if(startDate && status === 'closed'){
+        try {
+            const rentals = await db.query(`SELECT rentals.*, customers.id as "customerId", customers.name as "customerName", 
+            games.id as "gameId", games.name as "gameName" FROM rentals
+            JOIN customers ON rentals."customerId" = customers.id
+            JOIN games ON rentals."gameId" = games.id
+			WHERE rentals."rentDate" >= $1 AND rentals."returnDate" NOTNULL;`, [startDate]);
+
+            const rentalList = rentals.rows.map((rental) => {
+                const customer = { id: rental.customerId, name: rental.customerName };
+                const game = { id: rental.gameId, name: rental.gameName };
+
+                return ({
+                    id: rental.id,
+                    customerId: rental.customerId,
+                    gameId: rental.gameId,
+                    rentDate: rental.rentDate,
+                    daysRented: rental.daysRented,
+                    returnDate: rental.returnDate,
+                    originalPrice: rental.originalPrice,
+                    delayFee: rental.delayFee,
+                    customer,
+                    game
+                })
+            })
+            return res.status(200).send(rentalList);
+        } catch (error) {
+            return res.status(500).send(error);
+        }
     }else if(status === 'open'){
         try {
             const rentals = await db.query(`SELECT rentals.*, customers.id as "customerId", customers.name as "customerName", 
