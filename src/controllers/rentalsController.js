@@ -86,7 +86,7 @@ export async function finishRental(req, res){
         if(rental.rows[0].delayfee <= 0){
             multa = 0;
         }else{
-            multa = rental.rows[0].delayfee
+            multa = (rental.rows[0].delayfee * rental.rows[0].pricePerDay)
         }
         await db.query('UPDATE rentals SET "returnDate" = CURRENT_DATE, "delayFee" = $2 WHERE id = $1', [id, multa]);
         return res.sendStatus(200);
