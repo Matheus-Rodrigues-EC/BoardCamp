@@ -1,13 +1,24 @@
 import { db } from "../db.js"
 
 export async function getGames(req, res) {
-    try{
-        const games = await db.query('SELECT * FROM games;');
-        console.table(games.rows);
-        res.send(games.rows);
-    }catch(error){
-        console.log(error);
-        res.status(500).send(error)
+
+    const {name} = req.query;
+    if(!name){
+        try{
+            const games = await db.query('SELECT * FROM games;');
+            console.table(games.rows);
+            res.send(games.rows);
+        }catch(error){
+            console.log(error);
+            res.status(500).send(error)
+        }
+    }else{
+        try{
+            const games = await db.query(`SELECT * FROM games WHERE name ILIKE $1`, [name+'%'])
+            return res.status(200).send(games.rows);
+        }catch(error){
+            return res.status(500).send(error);
+        }
     }
 }
 

@@ -1,33 +1,95 @@
 import { db } from "../db.js";
 
-export async function getRentals(req, res){
+export async function getRentals(req, res) {
+    const { customerId, gameId } = req.query;
+    if (customerId) {
+        // return res.status(200).send(customerId);
+        try {
+            const rentals = await db.query(`SELECT rentals.*, customers.id as "customerId", customers.name as "customerName", 
+            games.id as "gameId", games.name as "gameName" FROM rentals
+            JOIN customers ON rentals."customerId" = customers.id
+            JOIN games ON rentals."gameId" = games.id
+            WHERE customers.id = $1`, [customerId]);
 
-    try{
-        const rentals = await db.query(`SELECT rentals.*, customers.id as "customerId", customers.name as "customerName", 
-        games.id as "gameId", games.name as "gameName" FROM rentals
-        JOIN customers ON rentals."customerId" = customers.id
-        JOIN games ON rentals."gameId" = games.id;`);
+            const rentalList = rentals.rows.map((rental) => {
+                const customer = { id: rental.customerId, name: rental.customerName };
+                const game = { id: rental.gameId, name: rental.gameName };
 
-        const rentalList = rentals.rows.map((rental) => {
-            const customer = {id: rental.customerId, name: rental.customerName};
-            const game = {id: rental.gameId, name: rental.gameName};
-
-            return ({
-                id: rental.id,
-                customerId: rental.customerId,
-                gameId: rental.gameId,
-                rentDate: rental.rentDate,
-                daysRented: rental.daysRented,
-                returnDate: rental.returnDate,
-                originalPrice: rental.originalPrice,
-                delayFee: rental.delayFee,
-                customer,
-                game
+                return ({
+                    id: rental.id,
+                    customerId: rental.customerId,
+                    gameId: rental.gameId,
+                    rentDate: rental.rentDate,
+                    daysRented: rental.daysRented,
+                    returnDate: rental.returnDate,
+                    originalPrice: rental.originalPrice,
+                    delayFee: rental.delayFee,
+                    customer,
+                    game
+                })
             })
-        })
-        return res.status(200).send(rentalList);
-    }catch(error){
-        return res.status(500).send(error);
+            return res.status(200).send(rentalList);
+        } catch (error) {
+            return res.status(500).send(error);
+        }
+    } else if (gameId) {
+        // return res.status(200).send(gameId);
+        try {
+            const rentals = await db.query(`SELECT rentals.*, customers.id as "customerId", customers.name as "customerName", 
+            games.id as "gameId", games.name as "gameName" FROM rentals
+            JOIN customers ON rentals."customerId" = customers.id
+            JOIN games ON rentals."gameId" = games.id
+            WHERE games.id = $1`, [gameId]);
+
+            const rentalList = rentals.rows.map((rental) => {
+                const customer = { id: rental.customerId, name: rental.customerName };
+                const game = { id: rental.gameId, name: rental.gameName };
+
+                return ({
+                    id: rental.id,
+                    customerId: rental.customerId,
+                    gameId: rental.gameId,
+                    rentDate: rental.rentDate,
+                    daysRented: rental.daysRented,
+                    returnDate: rental.returnDate,
+                    originalPrice: rental.originalPrice,
+                    delayFee: rental.delayFee,
+                    customer,
+                    game
+                })
+            })
+            return res.status(200).send(rentalList);
+        } catch (error) {
+            return res.status(500).send(error);
+        }
+    } else {
+        try {
+            const rentals = await db.query(`SELECT rentals.*, customers.id as "customerId", customers.name as "customerName", 
+            games.id as "gameId", games.name as "gameName" FROM rentals
+            JOIN customers ON rentals."customerId" = customers.id
+            JOIN games ON rentals."gameId" = games.id;`);
+
+            const rentalList = rentals.rows.map((rental) => {
+                const customer = { id: rental.customerId, name: rental.customerName };
+                const game = { id: rental.gameId, name: rental.gameName };
+
+                return ({
+                    id: rental.id,
+                    customerId: rental.customerId,
+                    gameId: rental.gameId,
+                    rentDate: rental.rentDate,
+                    daysRented: rental.daysRented,
+                    returnDate: rental.returnDate,
+                    originalPrice: rental.originalPrice,
+                    delayFee: rental.delayFee,
+                    customer,
+                    game
+                })
+            })
+            return res.status(200).send(rentalList);
+        } catch (error) {
+            return res.status(500).send(error);
+        }
     }
 
 }

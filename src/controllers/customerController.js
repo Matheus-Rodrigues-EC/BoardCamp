@@ -2,24 +2,47 @@ import { db } from "../db.js";
 import dayjs from "dayjs";
 
 export async function getCustomers(req, res){
-    try{
-        const customers = await db.query("SELECT * FROM customers;");
-        const customerList = customers.rows.map((client) => {
-            return (
-                {
-                    id: client.id,
-                    name: client.name,
-                    phone: client.phone,
-                    cpf: client.cpf,
-                    birthday: dayjs(client.birthday).format("YYYY-MM-DD")
-                }
-            )
-        })
-        return res.status(200).send(customerList);
-    }catch(error){
-        console.log(error)
-        return res.status(500).send(error);
+    const {cpf} = req.query;
+    if(!cpf){
+        try{
+            const customers = await db.query("SELECT * FROM customers;");
+            const customerList = customers.rows.map((client) => {
+                return (
+                    {
+                        id: client.id,
+                        name: client.name,
+                        phone: client.phone,
+                        cpf: client.cpf,
+                        birthday: dayjs(client.birthday).format("YYYY-MM-DD")
+                    }
+                )
+            })
+            return res.status(200).send(customerList);
+        }catch(error){
+            console.log(error)
+            return res.status(500).send(error);
+        }
+    }else{
+        try{
+            const customers = await db.query("SELECT * FROM customers WHERE cpf ILIKE $1", [cpf+'%']);
+            const customerList = customers.rows.map((client) => {
+                return (
+                    {
+                        id: client.id,
+                        name: client.name,
+                        phone: client.phone,
+                        cpf: client.cpf,
+                        birthday: dayjs(client.birthday).format("YYYY-MM-DD")
+                    }
+                )
+            })
+            return res.status(200).send(customerList);
+        }catch(error){
+            console.log(error)
+            return res.status(500).send(error);
+        }
     }
+
 }
 
 export async function getCustomerId(req, res){
