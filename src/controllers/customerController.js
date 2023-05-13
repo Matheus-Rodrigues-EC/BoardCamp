@@ -24,7 +24,7 @@ export async function getCustomers(req, res){
         }
     }else if(order && desc){
         try{
-            const customers = await db.query("SELECT * FROM customers ORDER By id DESC;");
+            const customers = await db.query("SELECT * FROM customers ORDER By $1 DESC;", [order]);
             const customerList = customers.rows.map((client) => {
                 return (
                     {
@@ -43,7 +43,7 @@ export async function getCustomers(req, res){
         }
     }else if(order){
         try{
-            const customers = await db.query("SELECT * FROM customers ORDER By id;");
+            const customers = await db.query("SELECT * FROM customers ORDER By $1;", [order]);
             const customerList = customers.rows.map((client) => {
                 return (
                     {
