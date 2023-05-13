@@ -2,10 +2,48 @@ import { db } from "../db.js";
 import dayjs from "dayjs";
 
 export async function getCustomers(req, res){
-    const {cpf, offset, limit} = req.query;
+    const {cpf, offset, limit, order, desc} = req.query;
     if(cpf){
         try{
             const customers = await db.query("SELECT * FROM customers WHERE cpf ILIKE $1", [cpf+'%']);
+            const customerList = customers.rows.map((client) => {
+                return (
+                    {
+                        id: client.id,
+                        name: client.name,
+                        phone: client.phone,
+                        cpf: client.cpf,
+                        birthday: dayjs(client.birthday).format("YYYY-MM-DD")
+                    }
+                )
+            })
+            return res.status(200).send(customerList);
+        }catch(error){
+            console.log(error)
+            return res.status(500).send(error);
+        }
+    }else if(order && desc){
+        try{
+            const customers = await db.query("SELECT * FROM customers ORDER By id DESC;");
+            const customerList = customers.rows.map((client) => {
+                return (
+                    {
+                        id: client.id,
+                        name: client.name,
+                        phone: client.phone,
+                        cpf: client.cpf,
+                        birthday: dayjs(client.birthday).format("YYYY-MM-DD")
+                    }
+                )
+            })
+            return res.status(200).send(customerList);
+        }catch(error){
+            console.log(error)
+            return res.status(500).send(error);
+        }
+    }else if(order){
+        try{
+            const customers = await db.query("SELECT * FROM customers ORDER By id;");
             const customerList = customers.rows.map((client) => {
                 return (
                     {

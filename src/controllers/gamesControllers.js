@@ -2,11 +2,25 @@ import { db } from "../db.js"
 
 export async function getGames(req, res) {
 
-    const {name, offset, limit} = req.query;
+    const {name, offset, limit, order, desc} = req.query;
     if(name){
         try{
             const games = await db.query(`SELECT * FROM games WHERE name ILIKE $1`, [name+'%'])
             return res.status(200).send(games.rows);
+        }catch(error){
+            return res.status(500).send(error);
+        }
+    }else if(order && desc){
+        try{
+            const games = await db.query('SELECT * FROM games ORDER BY id DESC;');
+            res.send(games.rows);
+        }catch(error){
+            return res.status(500).send(error);
+        }
+    }else if(order){
+        try{
+            const games = await db.query('SELECT * FROM games ORDER BY id;');
+            res.send(games.rows);
         }catch(error){
             return res.status(500).send(error);
         }
