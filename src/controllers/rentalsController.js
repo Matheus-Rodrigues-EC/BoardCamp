@@ -1,7 +1,7 @@
 import { db } from "../db.js";
 
 export async function getRentals(req, res) {
-    const { customerId, gameId } = req.query;
+    const { customerId, gameId, offset, limit } = req.query;
     if (customerId) {
         // return res.status(200).send(customerId);
         try {
@@ -62,7 +62,94 @@ export async function getRentals(req, res) {
         } catch (error) {
             return res.status(500).send(error);
         }
-    } else {
+    }else if(offset && limit){
+        try {
+            const rentals = await db.query(`SELECT rentals.*, customers.id as "customerId", customers.name as "customerName", 
+            games.id as "gameId", games.name as "gameName" FROM rentals
+            JOIN customers ON rentals."customerId" = customers.id
+            JOIN games ON rentals."gameId" = games.id
+            OFFSET $1 LIMIT $2;`, [offset, limit]);
+
+            const rentalList = rentals.rows.map((rental) => {
+                const customer = { id: rental.customerId, name: rental.customerName };
+                const game = { id: rental.gameId, name: rental.gameName };
+
+                return ({
+                    id: rental.id,
+                    customerId: rental.customerId,
+                    gameId: rental.gameId,
+                    rentDate: rental.rentDate,
+                    daysRented: rental.daysRented,
+                    returnDate: rental.returnDate,
+                    originalPrice: rental.originalPrice,
+                    delayFee: rental.delayFee,
+                    customer,
+                    game
+                })
+            })
+            return res.status(200).send(rentalList);
+        } catch (error) {
+            return res.status(500).send(error);
+        }
+    }else if(offset){
+        try {
+            const rentals = await db.query(`SELECT rentals.*, customers.id as "customerId", customers.name as "customerName", 
+            games.id as "gameId", games.name as "gameName" FROM rentals
+            JOIN customers ON rentals."customerId" = customers.id
+            JOIN games ON rentals."gameId" = games.id
+            OFFSET $1;`, [offset]);
+
+            const rentalList = rentals.rows.map((rental) => {
+                const customer = { id: rental.customerId, name: rental.customerName };
+                const game = { id: rental.gameId, name: rental.gameName };
+
+                return ({
+                    id: rental.id,
+                    customerId: rental.customerId,
+                    gameId: rental.gameId,
+                    rentDate: rental.rentDate,
+                    daysRented: rental.daysRented,
+                    returnDate: rental.returnDate,
+                    originalPrice: rental.originalPrice,
+                    delayFee: rental.delayFee,
+                    customer,
+                    game
+                })
+            })
+            return res.status(200).send(rentalList);
+        } catch (error) {
+            return res.status(500).send(error);
+        }
+    }else if(limit){
+        try {
+            const rentals = await db.query(`SELECT rentals.*, customers.id as "customerId", customers.name as "customerName", 
+            games.id as "gameId", games.name as "gameName" FROM rentals
+            JOIN customers ON rentals."customerId" = customers.id
+            JOIN games ON rentals."gameId" = games.id
+            LIMIT $1;`, [limit]);
+
+            const rentalList = rentals.rows.map((rental) => {
+                const customer = { id: rental.customerId, name: rental.customerName };
+                const game = { id: rental.gameId, name: rental.gameName };
+
+                return ({
+                    id: rental.id,
+                    customerId: rental.customerId,
+                    gameId: rental.gameId,
+                    rentDate: rental.rentDate,
+                    daysRented: rental.daysRented,
+                    returnDate: rental.returnDate,
+                    originalPrice: rental.originalPrice,
+                    delayFee: rental.delayFee,
+                    customer,
+                    game
+                })
+            })
+            return res.status(200).send(rentalList);
+        } catch (error) {
+            return res.status(500).send(error);
+        }
+    }else {
         try {
             const rentals = await db.query(`SELECT rentals.*, customers.id as "customerId", customers.name as "customerName", 
             games.id as "gameId", games.name as "gameName" FROM rentals
