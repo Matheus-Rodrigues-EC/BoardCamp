@@ -88,8 +88,7 @@ export async function finishRental(req, res){
         }else{
             multa = rental.rows[0].delayfee
         }
-        console.log(multa);
-        // await db.query('UPDATE rentals SET "returnDate" = CURRENT_DATE, "delayFee" = $2 WHERE id = $1', [id, multa]);
+        await db.query('UPDATE rentals SET "returnDate" = CURRENT_DATE, "delayFee" = $2 WHERE id = $1', [id, multa]);
         return res.sendStatus(200);
     }catch(error){
         return res.status(500).send(error)
@@ -103,12 +102,10 @@ export async function deleteRental(req, res){
         const rental = await db.query('SELECT id, "returnDate" FROM rentals WHERE id = $1 ', [id]);
         if(rental.rowCount === 0) return res.sendStatus(404);
         if(!rental.rows[0].returnDate){
-            console.log(rental.rows[0].returnDate);
             return res.sendStatus(400);
         }else{
             await db.query('DELETE FROM rentals WHERE id = $1 ', [id]);
         }
-        console.log(rental.rows[0].renturDate);
         return res.sendStatus(200);
     }catch(error){
         return res.status(500).send("Ocorreu um erro ao tentar deletar um aluguél")
