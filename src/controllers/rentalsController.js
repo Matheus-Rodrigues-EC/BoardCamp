@@ -49,8 +49,6 @@ export async function addRental(req, res){
         const remainingGames = await db.query(`SELECT games.*, rentals."gameId", rentals."returnDate"
         FROM games, rentals 
         WHERE games.id = $1 AND rentals."gameId" = $1 AND rentals."returnDate" ISNULL`, [gameId]);
-        // console.log("Rows: " + remainingGames.rowCount);
-        // console.log("Stock: " + remainingGames.rows[0]);
         if(remainingGames.rowCount > 0){
             if(remainingGames.rowCount >= remainingGames.rows[0].stockTotal){
                 return res.sendStatus(400);
@@ -63,7 +61,7 @@ export async function addRental(req, res){
     try{
         await db.query(`INSERT INTO rentals 
         ("customerId", "gameId", "rentDate", "daysRented", "returnDate", "originalPrice", "delayFee")
-        VALUES ($1, $2, now(), $3, null, $4, null)`, [customerId, gameId, daysRented, (price.rows[0].pricePerDay * daysRented) ]);
+        VALUES ($1, $2, CURRENT_DATE, $3, null, $4, null)`, [customerId, gameId, daysRented, (price.rows[0].pricePerDay * daysRented) ]);
         return res.sendStatus(201);
     }catch(error){
         return res.status(500).send("Ocorreu um erro ao tentar adicionar um aluguel.");
@@ -75,23 +73,23 @@ export async function finishRental(req, res){
     const {id} = req.params;
     let rental;
     try{
-        rental = await db.query(`SELECT (now() - rentals."rentDate") as delayFee, rentals."daysRented", rentals."returnDate", games."pricePerDay" FROM rentals
+        rental = await db.query(`SELECT ((CURRENT_DATE) - (rentals."rentDate" + rentals."daysRented")) as delayFee, rentals."returnDate", games."pricePerDay" FROM rentals
         JOIN games ON rentals."gameId" = games.id AND rentals.id = $1`, [id]);
         if(rental.rowCount === 0) return res.sendStatus(404);
         if(rental.rows[0].returnDate !== null) return res.sendStatus(400);
-        console.log(rental.rows[0]);
-    }catch(error){}
-    console.log(rental.rows[0].delayfee.days - rental.rows[0].daysRented);
-
-    let multa;
-    if((rental.rows[0].delayfee.days - rental.rows[0].daysRented) <= 0){
-        multa = 0;
-    }else{
-        multa = (rental.rows[0].delayfee.days * rental.rows[0].pricePerDay) - rental.rows[0].daysRented;
+    }catch(error){
+        return res.status(500).send(error);
     }
 
     try{
-        await db.query('UPDATE rentals SET "returnDate" = now(), "delayFee" = $2 WHERE id = $1', [id, multa]);
+        let multa;
+        if(rental.rows[0].delayfee <= 0){
+            multa = 0;
+        }else{
+            multa = rental.rows[0].delayfee
+        }
+        console.log(multa);
+        // await db.query('UPDATE rentals SET "returnDate" = CURRENT_DATE, "delayFee" = $2 WHERE id = $1', [id, multa]);
         return res.sendStatus(200);
     }catch(error){
         return res.status(500).send(error)
@@ -116,14 +114,3 @@ export async function deleteRental(req, res){
         return res.status(500).send("Ocorreu um erro ao tentar deletar um aluguél")
     }
 }
-
-// {
-//     id: 1,
-//     customerId: 1,
-//     gameId: 1,
-//     rentDate: '2021-06-20',    // data em que o aluguel foi feito
-//     daysRented: 3,             // por quantos dias o cliente agendou o aluguel
-//     returnDate: null,          // data que o cliente devolveu o jogo (null enquanto não devolvido)
-//     originalPrice: 4500,       // preço total do aluguel em centavos (dias alugados vezes o preço por dia do jogo)
-//     delayFee: null             // multa total paga por atraso (dias que passaram do prazo vezes o preço por dia do jogo)
-//   }
