@@ -12,16 +12,14 @@ export async function getGames(req, res) {
         }
     }else if(order && desc){
         try{
-            const games = await db.query('SELECT * FROM games ORDER BY $1 DESC;', ["games."+"`{order}`"]);
-            console.log("games."+`"${order}"`)
+            const games = await db.query(`SELECT * FROM games ORDER BY ${order} DESC;`);
             res.send(games.rows);
         }catch(error){
             return res.status(500).send(error);
         }
     }else if(order){
         try{
-            const games = await db.query('SELECT * FROM games ORDER BY $1;', ["games."+`"${order}"`]);
-            
+            const games = await db.query(`SELECT * FROM games ORDER BY ${order} ASC;`);
             res.send(games.rows);
         }catch(error){
             return res.status(500).send(error);
@@ -53,7 +51,6 @@ export async function getGames(req, res) {
             const games = await db.query('SELECT * FROM games;');
             res.send(games.rows);
         }catch(error){
-            console.log(error);
             res.status(500).send(error)
         }
     }
@@ -65,7 +62,6 @@ export async function postGame(req, res) {
     try{
         const game = (await db.query('SELECT name FROM games WHERE name = $1', [name])).rows;
         if(game.length >= 1){
-            // console.log(game);
             return res.sendStatus(409);
         }
     }catch(error){

@@ -19,12 +19,11 @@ export async function getCustomers(req, res){
             })
             return res.status(200).send(customerList);
         }catch(error){
-            console.log(error)
             return res.status(500).send(error);
         }
     }else if(order && desc){
         try{
-            const customers = await db.query("SELECT * FROM customers ORDER By $1 DESC;", ["customers."+`"${order}"`]);
+            const customers = await db.query(`SELECT * FROM customers ORDER By ${order} DESC;`);
             const customerList = customers.rows.map((client) => {
                 return (
                     {
@@ -38,12 +37,11 @@ export async function getCustomers(req, res){
             })
             return res.status(200).send(customerList);
         }catch(error){
-            console.log(error)
             return res.status(500).send(error);
         }
     }else if(order){
         try{
-            const customers = await db.query("SELECT * FROM customers ORDER By $1;", ["customers."+`"${order}"`]);
+            const customers = await db.query(`SELECT * FROM customers ORDER By ${order};`);
             const customerList = customers.rows.map((client) => {
                 return (
                     {
@@ -57,7 +55,6 @@ export async function getCustomers(req, res){
             })
             return res.status(200).send(customerList);
         }catch(error){
-            console.log(error)
             return res.status(500).send(error);
         }
     }else if(offset && limit){
@@ -76,7 +73,6 @@ export async function getCustomers(req, res){
             })
             return res.status(200).send(customerList);
         }catch(error){
-            console.log(error)
             return res.status(500).send(error);
         }
     }else if(offset){
@@ -95,7 +91,6 @@ export async function getCustomers(req, res){
             })
             return res.status(200).send(customerList);
         }catch(error){
-            console.log(error)
             return res.status(500).send(error);
         }
     }else if(limit){
@@ -114,7 +109,6 @@ export async function getCustomers(req, res){
             })
             return res.status(200).send(customerList);
         }catch(error){
-            console.log(error)
             return res.status(500).send(error);
         }
     }else{
@@ -133,7 +127,6 @@ export async function getCustomers(req, res){
             })
             return res.status(200).send(customerList);
         }catch(error){
-            console.log(error)
             return res.status(500).send(error);
         }
     }
