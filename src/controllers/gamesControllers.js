@@ -12,14 +12,14 @@ export async function getGames(req, res) {
         }
     }else if(order && desc){
         try{
-            const games = await db.query(`SELECT * FROM games ORDER BY ${order} DESC;`);
+            const games = await db.query(`SELECT * FROM games ORDER BY "${order}" DESC;`);
             res.send(games.rows);
         }catch(error){
             return res.status(500).send(error);
         }
     }else if(order){
         try{
-            const games = await db.query(`SELECT * FROM games ORDER BY ${order} ASC;`);
+            const games = await db.query(`SELECT * FROM games ORDER BY "${order}" ASC;`);
             res.send(games.rows);
         }catch(error){
             return res.status(500).send(error);
