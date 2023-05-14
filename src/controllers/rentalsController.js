@@ -97,7 +97,7 @@ export async function getRentals(req, res) {
             games.id as "gameId", games.name as "gameName" FROM rentals
             JOIN customers ON rentals."customerId" = customers.id
             JOIN games ON rentals."gameId" = games.id
-			ORDER BY "${order}";`);
+			ORDER BY rentals."${order}"`);
 
             const rentalList = rentals.rows.map((rental) => {
                 const customer = { id: rental.customerId, name: rental.customerName };
